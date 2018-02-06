@@ -1,1 +1,8 @@
-node_modules
+# dependencies
+/node_modules
+
+# environment
+.env
+
+# credentials
+credentials.json
