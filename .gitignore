@@ -1,8 +1,17 @@
 # dependencies
 /node_modules
 
+# testing
+/coverage
+
+# miscellaneous
+.DS_Store
+
 # environment
 .env
 
 # credentials
 credentials.json
+
+# Code coverage
+coverage
