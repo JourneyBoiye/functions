@@ -14,8 +14,8 @@ bx wsk action create $PACKAGE/suggestion-provider actions/suggestion-provider.js
 
 echo "Setting default parameters..."
 bx wsk action update $PACKAGE/suggestion-provider \
-  --param conversationUsername $NCL_USERNAME \
-  --param conversationPassword $NCL_PASSWORD \
+  --param nlcUsername $NCL_USERNAME \
+  --param nlcPassword $NCL_PASSWORD \
   --param discoveryUsername $DISCOVERY_USERNAME \
   --param discoveryPassword $DISCOVERY_PASSWORD \
   --param environment_id $ENVIRONMENT_ID \

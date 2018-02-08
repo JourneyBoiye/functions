@@ -7,11 +7,31 @@ function main(params) {
 
 		// Verify discovery parameters present.
 		assert(params.discoveryUsername, 'params.discoveryUsername cannot be null');
-		assert(params.discoveryUsername, 'params.discoveryPassword cannot be null');
+		assert(params.discoveryPassword, 'params.discoveryPassword cannot be null');
+
+		// Verify NLC parameters present.
+		assert(params.nlcUsername, 'params.nlcUsername cannot be null');
+		assert(params.nlcPassword, 'params.nlcPassword cannot be null');
 
 		// Verify input.
-		assert(params.name, 'params.name cannot be null');
+		assert(params.input, 'params.input cannot be null');
+		assert(params.input.text, 'params.input.text cannot be null');
 
-		return resolve({payload: 'Hello ' + params.name});
+		var discovery = new DiscoveryV1({
+			username: params.discoveryUsername,
+			password: params.discoveryPassword,
+			version_date: '2016-12-01'
+		});
+
+		discovery.query({
+			environment_id: params.environment_id,
+			collection_id: params.collection_id,
+			query: params.input.text
+		}, function(err, data) {
+			if (err) {
+				return reject(err);
+			}
+			return resolve(data);
+		});
 	});
 }
