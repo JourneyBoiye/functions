@@ -5,7 +5,12 @@
   "dependencies": {
     "watson-developer-cloud": "^3.0.6"
   },
+  "devDependencies": {
+    "codecov": "^3.0.0",
+    "eslint": "^4.3.0"
+  },
   "scripts": {
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
