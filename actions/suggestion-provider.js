@@ -15,8 +15,8 @@ function main(params) {
     assert(params.nlcPassword, 'params.nlcPassword cannot be null');
 
     // Verify input.
-    assert(params.input, 'params.input cannot be null');
-    assert(params.input.text, 'params.input.text cannot be null');
+    assert(params.activities, 'params.input cannot be null');
+    // assert(params.input.text, 'params.input.text cannot be null');
 
     var discovery = new DiscoveryV1({
       username: params.discoveryUsername,
@@ -24,15 +24,26 @@ function main(params) {
       version_date: '2016-12-01'
     });
 
-    discovery.query({
+    return discovery.query({
       environment_id: params.environment_id,
       collection_id: params.collection_id,
-      query: params.input.text
+      query: params.activities,
+      count: 5,
     }, function(err, data) {
       if (err) {
         return reject(err);
       }
-      return resolve(data);
+
+      // Retrieve up to the first 5 results.
+      let results = [];
+      for (var i = 0; i < data['results'].length; i++) {
+        let body = data.results[i];
+        let title = body.title;
+        results[i] = {
+          name: title,
+        };
+      }
+      return resolve({results});
     });
   });
 }
