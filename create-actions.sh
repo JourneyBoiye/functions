@@ -6,11 +6,14 @@ NCL_PASSWORD=`jq .natural_language_classifier[].credentials.password credentials
 DISCOVERY_USERNAME=`jq .discovery[].credentials.username credentials.json`;
 DISCOVERY_PASSWORD=`jq .discovery[].credentials.password credentials.json`;
 
+# Build
+npm run build
+
 # Create Actions
 echo "Creating Cloud Function Actions..."
 export PACKAGE="suggestions"
 bx wsk package create suggestions
-bx wsk action create $PACKAGE/suggestion-provider actions/suggestion-provider.js --web true
+bx wsk action create $PACKAGE/suggestion-provider dist/bundle.js --web true --kind nodejs:8
 
 echo "Setting default parameters..."
 bx wsk action update $PACKAGE/suggestion-provider \
@@ -22,11 +25,11 @@ bx wsk action update $PACKAGE/suggestion-provider \
   --param collection_id $COLLECTION_ID
   #  --param workspace_id $WORKSPACE_ID \
 
-echo 'Creating Action Sequence...'
-bx wsk action create $PACKAGE/suggestion-provider-sequence --sequence $PACKAGE/suggestion-provider --web true
+#echo 'Creating Action Sequence...'
+#bx wsk action create $PACKAGE/suggestion-provider-sequence --sequence $PACKAGE/suggestion-provider --web true
 
 echo "Retrieving Action URL..."
-API_URL=`bx wsk action get $PACKAGE/suggestion-provider-sequence --url | sed -n '2p'`;
+API_URL=`bx wsk action get $PACKAGE/suggestion-provider --url | sed -n '2p'`;
 API_URL+=".json"
 
 # Write API Url to .env file

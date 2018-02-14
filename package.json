@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "sbd": "^1.0.12",
     "watson-developer-cloud": "^3.0.6"
   },
   "devDependencies": {
@@ -10,10 +11,13 @@
     "eslint": "^4.3.0",
     "istanbul": "^0.4.5",
     "mocha": "^4.0.1",
-    "nock": "^9.0.13"
+    "nock": "^9.0.13",
+    "webpack": "^3.8.1"
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha tests/**/* -- -R spec"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha tests/**/* -- -R spec",
+    "build": "webpack --config webpack.config.js",
+    "deploy": "bx wsk action update suggestions/suggestion-provider dist/bundle.js --web true --kind nodejs:8"
   }
 }

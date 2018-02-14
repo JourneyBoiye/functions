@@ -1,6 +1,7 @@
 const assert = require('assert');
 const DiscoveryV1 = require('watson-developer-cloud/discovery/v1');
 const NLCV1 = require('watson-developer-cloud/natural-language-classifier/v1');
+const tokenizer = require('sbd');
 
 function main(params) {
   return new Promise(function (resolve, reject) {
@@ -24,6 +25,14 @@ function main(params) {
       version_date: '2016-12-01'
     });
 
+    var tokenizerOptions = {
+      'newline_boundaries' : true,
+      'html_boundaries'    : false,
+      'sanitize'           : true,
+      'allowed_tags'       : false,
+      'abbreviations'      : null
+    };
+
     return discovery.query({
       environment_id: params.environment_id,
       collection_id: params.collection_id,
@@ -39,8 +48,13 @@ function main(params) {
       for (var i = 0; i < data['results'].length; i++) {
         let body = data.results[i];
         let title = body.title;
+        let sentences = tokenizer.sentences(
+          body.text.replace(/\s+/g, ' ').trim(),
+          tokenizerOptions);
+        let text = sentences[0].trim();
         results[i] = {
           name: title,
+          text: text,
         };
       }
       return resolve({results});
@@ -48,4 +62,4 @@ function main(params) {
   });
 }
 
-module.exports.main = main;
+global.main = main;
