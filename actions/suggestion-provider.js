@@ -36,7 +36,7 @@ function main(params) {
     return discovery.query({
       environment_id: params.environment_id,
       collection_id: params.collection_id,
-      query: params.activities,
+      natural_language_query: params.activities,
       count: 5,
     }, function(err, data) {
       if (err) {
