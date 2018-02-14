@@ -51,7 +51,7 @@ function main(params) {
         let sentences = tokenizer.sentences(
           body.text.replace(/\s+/g, ' ').trim(),
           tokenizerOptions);
-        let text = sentences[0].trim();
+        let text = sentences[0].replace(/&quot;/g, '\"').trim();
         results[i] = {
           name: title,
           text: text,
