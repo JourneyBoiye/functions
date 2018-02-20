@@ -16,8 +16,7 @@ function main(params) {
     assert(params.nlcPassword, 'params.nlcPassword cannot be null');
 
     // Verify input.
-    assert(params.activities, 'params.input cannot be null');
-    // assert(params.input.text, 'params.input.text cannot be null');
+    assert(params.activities, 'params.activities cannot be null');
 
     var discovery = new DiscoveryV1({
       username: params.discoveryUsername,
@@ -52,9 +51,13 @@ function main(params) {
           body.text.replace(/\s+/g, ' ').trim(),
           tokenizerOptions);
         let text = sentences[0].replace(/&quot;/g, '"').trim();
+        let country = body.country;
+        let region = body.region;
         results[i] = {
           name: title,
           text: text,
+          country: country,
+          region: region,
         };
       }
       return resolve({results});
