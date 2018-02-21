@@ -3,8 +3,13 @@ const DiscoveryV1 = require('watson-developer-cloud/discovery/v1');
 const NLCV1 = require('watson-developer-cloud/natural-language-classifier/v1');
 const tokenizer = require('sbd');
 
+const parseString = require('xml2js').parseString;
+import fetch from 'node-fetch';
+
+const STATE_DEPARTMENT_URL = 'https://travel.state.gov/_res/rss/TAsTWs.xml';
+
 function main(params) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     assert(params, 'params cannot be null');
 
     // Verify discovery parameters present.
@@ -32,36 +37,71 @@ function main(params) {
       'abbreviations'      : null
     };
 
-    return discovery.query({
-      environment_id: params.environment_id,
-      collection_id: params.collection_id,
-      natural_language_query: params.activities,
-      count: 5,
-    }, function(err, data) {
-      if (err) {
-        return reject(err);
-      }
-
-      // Retrieve up to the first 5 results.
-      let results = [];
-      for (var i = 0; i < data['results'].length; i++) {
-        let body = data.results[i];
-        let title = body.title;
-        let sentences = tokenizer.sentences(
-          body.text.replace(/\s+/g, ' ').trim(),
-          tokenizerOptions);
-        let text = sentences[0].replace(/&quot;/g, '"').trim();
-        let country = body.country;
-        let region = body.region;
-        results[i] = {
-          name: title,
-          text: text,
-          country: country,
-          region: region,
-        };
-      }
-      return resolve({results});
+    let rssData = new Promise((resolve, reject) => {
+      fetch(STATE_DEPARTMENT_URL)
+        .then(res => res.status === 200
+          ? res.text().then(text => {
+            parseString(text, function(err, result) {
+              if (err) {
+                reject(err);
+              } else {
+                var notices = {};
+                const advisory = result.rss.channel[0];
+                advisory.item.forEach(detail => {
+                  // Some row use '–' instead of '-', make them uniform.
+                  var countryLevel = detail.title[0]
+                    .replace('–', '-')
+                    .split('-');
+                  try {
+                    notices[countryLevel[0].trim()] =
+                      parseInt(countryLevel[1].trim().match(/\d/)[0]);
+                  }
+                  catch (error) {
+                    return; // Skip any we encounter an error with.
+                  }
+                });
+                resolve(notices);
+              }
+            });
+          })
+          : reject(res.status));
     });
+
+    let discoveryResults = new Promise(function(resolve, reject) {
+      discovery.query({
+        environment_id: params.environment_id,
+        collection_id: params.collection_id,
+        natural_language_query: params.activities,
+        count: 5,
+      }, function(err, data) {
+        if (err) {
+          return reject(err);
+        }
+
+        // Retrieve up to the first 5 results.
+        let results = [];
+        for (var i = 0; i < data['results'].length; i++) {
+          let body = data.results[i];
+          let title = body.title;
+          let sentences = tokenizer.sentences(
+            body.text.replace(/\s+/g, ' ').trim(),
+            tokenizerOptions);
+          let text = sentences[0].replace(/&quot;/g, '"').trim();
+          let country = body.country;
+          let region = body.region;
+          results[i] = {
+            name: title,
+            text: text,
+            country: country,
+            region: region,
+          };
+        }
+        return resolve({results});
+      });
+    });
+
+    Promise.all([discoveryResults, rssData])
+      .then(values => resolve(values[0]));
   });
 }
 
