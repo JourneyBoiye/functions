@@ -101,7 +101,22 @@ function main(params) {
     });
 
     Promise.all([discoveryResults, rssData])
-      .then(values => resolve(values[0]));
+      .then(values => {
+        var levels = values[1];
+        var results = values[0].results;
+        results.forEach(result => {
+          /*
+           * level 1 = safe
+           * level 2 = exercise caution
+           * level 3 = consider changing travel plans
+           * level 4 = do not travel to
+           *
+           * If there is no level for the country, we assume it's safe.
+           */
+          result.level = levels[result.country] ? levels[result.country] : 1;
+        });
+        resolve(values[0]);
+      });
   });
 }
 
