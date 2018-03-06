@@ -132,9 +132,9 @@ function main(params) {
     }).then(results => {
       database.bulk({docs:results}, err => {
         if (err) {
-          return Promise.reject(null)
-        })
-      )
+          return Promise.reject(null);
+        }
+      });
     });
 
 
