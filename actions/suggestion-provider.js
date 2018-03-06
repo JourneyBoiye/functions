@@ -116,7 +116,8 @@ function main(params) {
             text: text,
             country: country,
             region: region,
-            rpi: body.rpi
+            rpi: body.rpi,
+            iata: body.iata
           };
 
           if (body.rpi < results[min_rpi]) {
