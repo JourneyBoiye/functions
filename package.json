@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "cloudant": "^1.10.0-NOTICE",
     "node-fetch": "^2.0.0",
     "sbd": "^1.0.12",
     "watson-developer-cloud": "^3.0.6",

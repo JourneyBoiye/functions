@@ -5,6 +5,9 @@ NCL_USERNAME=`jq .natural_language_classifier[].credentials.username credentials
 NCL_PASSWORD=`jq .natural_language_classifier[].credentials.password credentials.json`;
 DISCOVERY_USERNAME=`jq .discovery[].credentials.username credentials.json`;
 DISCOVERY_PASSWORD=`jq .discovery[].credentials.password credentials.json`;
+CLOUDANT_USERNAME=`jq .cloudant[].username credentials.json`;
+CLOUDANT_PASSWORD=`jq .cloudant[].password credentials.json`;
+CLOUDANT_DB=`jq .cloudant[].db credentials.json`;
 
 # Build
 npm run build
@@ -22,7 +25,10 @@ bx wsk action update $PACKAGE/suggestion-provider \
   --param discoveryUsername $DISCOVERY_USERNAME \
   --param discoveryPassword $DISCOVERY_PASSWORD \
   --param environment_id $ENVIRONMENT_ID \
-  --param collection_id $COLLECTION_ID
+  --param collection_id $COLLECTION_ID \
+  --param cloudantUsername $CLOUDANT_USERNAME \
+  --param cloudantPassword $CLOUDANT_PASSWORD \
+  --param cloudantDb $CLOUDANT_DB
   #  --param workspace_id $WORKSPACE_ID \
 
 #echo 'Creating Action Sequence...'

@@ -2,6 +2,7 @@ const assert = require('assert');
 const DiscoveryV1 = require('watson-developer-cloud/discovery/v1');
 const NLCV1 = require('watson-developer-cloud/natural-language-classifier/v1');
 const tokenizer = require('sbd');
+const Cloudant = require('cloudant');
 
 const parseString = require('xml2js').parseString;
 import fetch from 'node-fetch';
@@ -20,6 +21,11 @@ function main(params) {
     assert(params.nlcUsername, 'params.nlcUsername cannot be null');
     assert(params.nlcPassword, 'params.nlcPassword cannot be null');
 
+    // Verify Cloudant parameters present.
+    assert(params.cloudantUsername, 'params.cloudantUsername cannot be null');
+    assert(params.cloudantPassword, 'params.cloudantPassword cannot be null');
+    assert(params.cloudantDb, 'params.cloudantDb cannot be null');
+
     // Verify input.
     assert(params.activities, 'params.activities cannot be null');
 
@@ -28,6 +34,12 @@ function main(params) {
       password: params.discoveryPassword,
       version_date: '2016-12-01'
     });
+
+    var cloudant = new Cloudant({
+      account: params.cloudantUsername,
+      password: params.cloudantPassword,
+    });
+    var database = cloudant.db.use(params.cloudantDb);
 
     var tokenizerOptions = {
       'newline_boundaries' : true,
