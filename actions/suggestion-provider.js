@@ -84,14 +84,22 @@ function main(params) {
         environment_id: params.environment_id,
         collection_id: params.collection_id,
         natural_language_query: params.activities,
-        count: 5,
+        count: 15,
       }, function(err, data) {
         if (err) {
           return reject(err);
         }
 
+        // Compute the max/min budgets
+        let min_rpi = 200;
+        let max_rpi = 0;
+
         // Retrieve up to the first 5 results.
-        let results = [];
+        let results = {
+          resultsArray : [],
+          min_rpi : 200,
+          max_rpi : 0
+        };
         for (var i = 0; i < data['results'].length; i++) {
           let body = data.results[i];
           let title = body.title;
@@ -101,21 +109,39 @@ function main(params) {
           let text = sentences[0].replace(/&quot;/g, '"').trim();
           let country = body.country;
           let region = body.region;
-          results[i] = {
+
+          results.resultsArray[i] = {
+            _id: body.id,
             name: title,
             text: text,
             country: country,
             region: region,
+            rpi: body.rpi
           };
+
+          if (body.rpi < results[min_rpi]) {
+            min_rpi = body.rpi;
+          }
+          if (body.rpi > results[max_rpi]) {
+            max_rpi = body.rpi;
+          }
         }
-        return resolve({results});
+
+        return resolve(results);
       });
+    }).then(results => {
+      database.bulk({docs:results}, err => {
+        if (err) {
+          return Promise.reject(null)
+        })
+      )
     });
+
 
     Promise.all([discoveryResults, rssData])
       .then(values => {
         var levels = values[1];
-        var results = values[0].results;
+        var results = values[0].resultsArray;
         results.forEach(result => {
           /*
            * level 1 = safe
