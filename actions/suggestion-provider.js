@@ -135,6 +135,7 @@ function main(params) {
           return Promise.reject(null);
         }
       });
+      return results;
     });
 
 
