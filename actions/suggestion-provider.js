@@ -130,7 +130,7 @@ function main(params) {
         return resolve(results);
       });
     }).then(results => {
-      database.bulk({docs:results}, err => {
+      database.bulk({docs:results.resultsArray}, err => {
         if (err) {
           return Promise.reject(null);
         }
