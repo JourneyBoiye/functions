@@ -156,6 +156,7 @@ function main(params) {
            */
           result.level = levels[result.country] ? levels[result.country] : 1;
         });
+        values[0].resultsArray = results.slice(0, 5);
         resolve(values[0]);
       });
   });
