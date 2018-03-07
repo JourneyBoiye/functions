@@ -117,14 +117,15 @@ function main(params) {
             country: country,
             region: region,
             rpi: body.rpi,
-            iata: body.iata
+            iata: body.iata,
+            query: params.activities
           };
 
-          if (body.rpi < results[min_rpi]) {
-            min_rpi = body.rpi;
+          if (body.rpi < results.min_rpi) {
+            results.min_rpi = body.rpi;
           }
-          if (body.rpi > results[max_rpi]) {
-            max_rpi = body.rpi;
+          if (body.rpi > results.max_rpi) {
+            results.max_rpi = body.rpi;
           }
         }
 
