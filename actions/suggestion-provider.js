@@ -132,8 +132,8 @@ function main(params) {
         if (err) {
           return Promise.reject(err);
         }
-        return results;
-      });
+      }); 
+      return results;
     });
 
 
