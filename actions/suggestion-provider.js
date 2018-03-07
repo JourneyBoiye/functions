@@ -120,26 +120,11 @@ function main(params) {
             iata: body.iata,
             query: params.activities
           };
-
-          if (body.rpi < results.min_rpi) {
-            results.min_rpi = body.rpi;
-          }
-          if (body.rpi > results.max_rpi) {
-            results.max_rpi = body.rpi;
-          }
         }
 
         return resolve(results);
       });
-    }).then(results => {
-      database.bulk({docs:results.resultsArray}, err => {
-        if (err) {
-          return Promise.reject(null);
-        }
-      });
-      return results;
     });
-
 
     Promise.all([discoveryResults, rssData])
       .then(values => {
@@ -156,8 +141,23 @@ function main(params) {
            */
           result.level = levels[result.country] ? levels[result.country] : 1;
         });
-        values[0].resultsArray = results.slice(0, 5);
-        resolve(values[0]);
+        return values[0];
+      }).then(results => {
+        database.bulk({docs:results.resultsArray}, err => {
+          if (err) {
+            return reject(null);
+          }
+          results.resultsArray = results.resultsArray.slice(0, 5);
+          results.resultsArray.forEach(result => {
+            if (result.rpi < results.min_rpi) {
+              results.min_rpi = result.rpi;
+            }
+            if (result.rpi > results.max_rpi) {
+              results.max_rpi = result.rpi;
+            }
+          });
+          resolve(results);
+        });
       });
   });
 }
