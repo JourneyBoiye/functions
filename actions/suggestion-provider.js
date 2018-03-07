@@ -97,7 +97,7 @@ function main(params) {
         // Retrieve up to the first 5 results.
         let results = {
           resultsArray : [],
-          min_rpi : 200,
+          min_rpi : 1000,
           max_rpi : 0
         };
         for (var i = 0; i < data['results'].length; i++) {
@@ -120,10 +120,10 @@ function main(params) {
           };
 
           if (body.rpi < results[min_rpi]) {
-            min_rpi = body.rpi;
+            results.min_rpi = body.rpi;
           }
           if (body.rpi > results[max_rpi]) {
-            max_rpi = body.rpi;
+            results.max_rpi = body.rpi;
           }
         }
 
@@ -154,6 +154,7 @@ function main(params) {
            */
           result.level = levels[result.country] ? levels[result.country] : 1;
         });
+        results.resultsArray = result.resultsArray.slice(0,6)
         resolve(values[0]);
       });
   });
