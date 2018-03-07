@@ -113,6 +113,7 @@ function main(params) {
             country: country,
             region: region,
             rpi: body.rpi
+            query: params.activities
           };
 
           if (body.rpi < results.min_rpi) {
@@ -127,13 +128,11 @@ function main(params) {
       });
     }).then(results => {
       return new Promise((resolve, reject) => {
-        cloudant.db.create(params.cloudantDb, function() {
-          var database = cloudant.db.use(params.cloudantDb);
-          database.bulk({docs:results.resultsArray}, err => {
-            if (err) {
-              reject(err);
-            }
-          });
+        var database = cloudant.db.use(params.cloudantDb);
+        database.bulk({docs:results.resultsArray}, err => {
+          if (err) {
+            reject(err);
+          }
           resolve(results);
         });
       });
