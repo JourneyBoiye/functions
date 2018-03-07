@@ -39,7 +39,6 @@ function main(params) {
       account: params.cloudantUsername,
       password: params.cloudantPassword,
     });
-    var database = cloudant.db.use(params.cloudantDb);
 
     var tokenizerOptions = {
       'newline_boundaries' : true,
@@ -80,6 +79,7 @@ function main(params) {
     });
 
     let discoveryResults = new Promise(function(resolve, reject) {
+
       discovery.query({
         environment_id: params.environment_id,
         collection_id: params.collection_id,
@@ -89,10 +89,6 @@ function main(params) {
         if (err) {
           return reject(err);
         }
-
-        // Compute the max/min budgets
-        let min_rpi = 200;
-        let max_rpi = 0;
 
         // Retrieve up to the first 5 results.
         let results = {
@@ -119,10 +115,10 @@ function main(params) {
             rpi: body.rpi
           };
 
-          if (body.rpi < results[min_rpi]) {
+          if (body.rpi < results.min_rpi) {
             results.min_rpi = body.rpi;
           }
-          if (body.rpi > results[max_rpi]) {
+          if (body.rpi > results.max_rpi) {
             results.max_rpi = body.rpi;
           }
         }
@@ -130,12 +126,17 @@ function main(params) {
         return resolve(results);
       });
     }).then(results => {
-      database.bulk({docs:results.resultsArray}, err => {
-        if (err) {
-          return Promise.reject(null);
-        }
+      return new Promise((resolve, reject) => {
+        cloudant.db.create(params.cloudantDb, function() {
+          var database = cloudant.db.use(params.cloudantDb);
+          database.bulk({docs:results.resultsArray}, err => {
+            if (err) {
+              reject(err);
+            }
+          });
+          resolve(results);
+        });
       });
-      return results;
     });
 
 
