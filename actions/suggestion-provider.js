@@ -112,7 +112,7 @@ function main(params) {
             text: text,
             country: country,
             region: region,
-            rpi: body.rpi
+            rpi: body.rpi,
             query: params.activities
           };
 
