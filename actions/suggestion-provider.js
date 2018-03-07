@@ -38,7 +38,8 @@ function main(params) {
     var cloudant = new Cloudant({
       account: params.cloudantUsername,
       password: params.cloudantPassword,
-    });
+    }); 
+    var database = cloudant.db.use(params.cloudantDb);
 
     var tokenizerOptions = {
       'newline_boundaries' : true,
@@ -127,14 +128,11 @@ function main(params) {
         return resolve(results);
       });
     }).then(results => {
-      return new Promise((resolve, reject) => {
-        var database = cloudant.db.use(params.cloudantDb);
-        database.bulk({docs:results.resultsArray}, err => {
-          if (err) {
-            reject(err);
-          }
-          resolve(results);
-        });
+      database.bulk({docs:results.resultsArray}, err => {
+        if (err) {
+          return Promise.reject(err);
+        }
+        return results;
       });
     });
 
