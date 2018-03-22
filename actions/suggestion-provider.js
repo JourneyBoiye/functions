@@ -1,6 +1,5 @@
 const assert = require('assert');
 const DiscoveryV1 = require('watson-developer-cloud/discovery/v1');
-const NLCV1 = require('watson-developer-cloud/natural-language-classifier/v1');
 const tokenizer = require('sbd');
 const Cloudant = require('cloudant');
 
@@ -8,6 +7,53 @@ const parseString = require('xml2js').parseString;
 import fetch from 'node-fetch';
 
 const STATE_DEPARTMENT_URL = 'https://travel.state.gov/_res/rss/TAsTWs.xml';
+
+export function buildDiscoveryInstance(username, password) {
+  return new DiscoveryV1({
+    username: username,
+    password: password,
+    version_date: '2016-12-01'
+  });
+}
+
+export function buildCloudantInstance(account, password) {
+  return new Cloudant({
+    account: account,
+    password: password
+  });
+}
+
+export function getRssFeed() {
+  return new Promise((resolve, reject) => {
+    fetch(STATE_DEPARTMENT_URL)
+      .then(res => res.status === 200
+        ? res.text().then(text => {
+          parseString(text, (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              var notices = {};
+              const advisory = result.rss.channel[0];
+              advisory.item.forEach(detail => {
+                // Some row use '–' instead of '-', make them uniform.
+                var countryLevel = detail.title[0]
+                  .replace('–', '-')
+                  .split('-');
+                try {
+                  notices[countryLevel[0].trim()] =
+                    parseInt(countryLevel[1].trim().match(/\d/)[0]);
+                }
+                catch (error) {
+                  return; // Skip any we encounter an error with.
+                }
+              });
+              resolve(notices);
+            }
+          });
+        })
+        : reject(res.status));
+  });
+}
 
 function main(params) {
   return new Promise((resolve, reject) => {
@@ -26,19 +72,12 @@ function main(params) {
     assert(params.cloudantPassword, 'params.cloudantPassword cannot be null');
     assert(params.cloudantDb, 'params.cloudantDb cannot be null');
 
-    // Verify input.
-    assert(params.activities, 'params.activities cannot be null');
+    // Ensure that input exists.
+    params.activities = params.activities || '';
 
-    var discovery = new DiscoveryV1({
-      username: params.discoveryUsername,
-      password: params.discoveryPassword,
-      version_date: '2016-12-01'
-    });
+    var discovery = buildDiscoveryInstance(params.discoveryUsername, params.discoveryPassword);
+    var cloudant = buildCloudantInstance(params.cloudantUsername, params.cloudantPassword);
 
-    var cloudant = new Cloudant({
-      account: params.cloudantUsername,
-      password: params.cloudantPassword,
-    });
     var database = cloudant.db.use(params.cloudantDb);
 
     var tokenizerOptions = {
@@ -49,35 +88,7 @@ function main(params) {
       'abbreviations'      : null
     };
 
-    let rssData = new Promise((resolve, reject) => {
-      fetch(STATE_DEPARTMENT_URL)
-        .then(res => res.status === 200
-          ? res.text().then(text => {
-            parseString(text, function(err, result) {
-              if (err) {
-                reject(err);
-              } else {
-                var notices = {};
-                const advisory = result.rss.channel[0];
-                advisory.item.forEach(detail => {
-                  // Some row use '–' instead of '-', make them uniform.
-                  var countryLevel = detail.title[0]
-                    .replace('–', '-')
-                    .split('-');
-                  try {
-                    notices[countryLevel[0].trim()] =
-                      parseInt(countryLevel[1].trim().match(/\d/)[0]);
-                  }
-                  catch (error) {
-                    return; // Skip any we encounter an error with.
-                  }
-                });
-                resolve(notices);
-              }
-            });
-          })
-          : reject(res.status));
-    });
+    let rssData = getRssFeed();
 
     let discoveryResults = new Promise(function(resolve, reject) {
       discovery.query({
