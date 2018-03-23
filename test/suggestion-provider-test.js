@@ -10,7 +10,7 @@ describe('suggestion-provider', () => {
   it('err', done => {
     suggestionProvider.queryCallback('error!', {}, '')
       .then(() => {
-        done(new Error('Expected method to reject.'))
+        done(new Error('Expected method to reject.'));
       })
       .catch(err => {
         assert.notStrictEqual(err, undefined);
@@ -40,7 +40,7 @@ describe('suggestion-provider', () => {
           rpi: 75
         }
       ]
-    }
+    };
     let expectedResults = {
       resultsArray: [
         {
@@ -56,7 +56,7 @@ describe('suggestion-provider', () => {
       ],
       min_rpi: 200, // Min/Max RPI not calculated at this point.
       max_rpi: 0
-    }
+    };
     suggestionProvider.queryCallback(undefined, resultsInput, 'Buckeye football.')
       .then(data => {
         done(assert.deepStrictEqual(data, expectedResults));
