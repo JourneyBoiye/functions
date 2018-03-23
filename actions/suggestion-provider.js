@@ -8,6 +8,55 @@ import fetch from 'node-fetch';
 
 const STATE_DEPARTMENT_URL = 'https://travel.state.gov/_res/rss/TAsTWs.xml';
 
+export function queryCallback(err, data, activities) {
+  return new Promise((resolve, reject) => {
+    if (err) {
+      return reject(err);
+    }
+
+    var tokenizerOptions = {
+      'newline_boundaries' : true,
+      'html_boundaries'    : false,
+      'sanitize'           : true,
+      'allowed_tags'       : false,
+      'abbreviations'      : null
+    };
+
+    // Compute the max/min budgets
+    let min_rpi = 200;
+    let max_rpi = 0;
+
+    // Retrieve up to the first 5 results.
+    let results = {
+      resultsArray : [],
+      min_rpi : 200,
+      max_rpi : 0
+    };
+    for (var i = 0; i < data['results'].length; i++) {
+      let body = data.results[i];
+      let title = body.title;
+      let sentences = tokenizer.sentences(
+        body.text.replace(/\s+/g, ' ').trim(),
+        tokenizerOptions);
+      let text = sentences[0].replace(/&quot;/g, '"').trim();
+      let country = body.country;
+      let region = body.region;
+
+      results.resultsArray[i] = {
+        _id: body.id,
+        name: title,
+        text: text,
+        country: country,
+        region: region,
+        rpi: body.rpi,
+        iata: body.iata,
+        query: activities
+      };
+    }
+    return resolve(results);
+  });
+}
+
 export function buildDiscoveryInstance(username, password) {
   return new DiscoveryV1({
     username: username,
@@ -80,14 +129,6 @@ function main(params) {
 
     var database = cloudant.db.use(params.cloudantDb);
 
-    var tokenizerOptions = {
-      'newline_boundaries' : true,
-      'html_boundaries'    : false,
-      'sanitize'           : true,
-      'allowed_tags'       : false,
-      'abbreviations'      : null
-    };
-
     let rssData = getRssFeed();
 
     let discoveryResults = new Promise(function(resolve, reject) {
@@ -96,45 +137,7 @@ function main(params) {
         collection_id: params.collection_id,
         natural_language_query: params.activities,
         count: 15,
-      }, function(err, data) {
-        if (err) {
-          return reject(err);
-        }
-
-        // Compute the max/min budgets
-        let min_rpi = 200;
-        let max_rpi = 0;
-
-        // Retrieve up to the first 5 results.
-        let results = {
-          resultsArray : [],
-          min_rpi : 200,
-          max_rpi : 0
-        };
-        for (var i = 0; i < data['results'].length; i++) {
-          let body = data.results[i];
-          let title = body.title;
-          let sentences = tokenizer.sentences(
-            body.text.replace(/\s+/g, ' ').trim(),
-            tokenizerOptions);
-          let text = sentences[0].replace(/&quot;/g, '"').trim();
-          let country = body.country;
-          let region = body.region;
-
-          results.resultsArray[i] = {
-            _id: body.id,
-            name: title,
-            text: text,
-            country: country,
-            region: region,
-            rpi: body.rpi,
-            iata: body.iata,
-            query: params.activities
-          };
-        }
-
-        return resolve(results);
-      });
+      }, (err, data) => resolve(queryCallback(err, data, params.activities)));
     });
 
     Promise.all([discoveryResults, rssData])
