@@ -6,7 +6,7 @@ const Cloudant = require('cloudant');
 const parseString = require('xml2js').parseString;
 import fetch from 'node-fetch';
 
-const STATE_DEPARTMENT_URL = 'https://travel.state.gov/_res/rss/TAsTWs.xml';
+const STATE_DEPARTMENT_URL = Object.freeze('https://travel.state.gov/_res/rss/TAsTWs.xml');
 
 export function queryCallback(err, data, activities) {
   return new Promise((resolve, reject) => {
