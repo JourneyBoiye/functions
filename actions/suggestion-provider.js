@@ -137,6 +137,8 @@ function main(params) {
     assert(params.cloudantPassword, 'params.cloudantPassword cannot be null');
     assert(params.cloudantDb, 'params.cloudantDb cannot be null');
 
+    assert(params.budget, 'params.budget cannot be null');
+    assert(params.days, 'params.days cannot be null');
     assert(params.iataFrom, 'params.iataFrom cannot be null');
 
     // Ensure that input exists.
@@ -154,7 +156,7 @@ function main(params) {
         environment_id: params.environment_id,
         collection_id: params.collection_id,
         natural_language_query: params.activities,
-        count: 15,
+        count: 25,
       }, (err, data) => resolve(queryCallback(err, data, params.activities)));
     });
 
@@ -179,9 +181,27 @@ function main(params) {
            * If there is no level for the country, we assume it's safe.
            */
           result.level = levels[result.country] ? levels[result.country] : 1;
-
           result.avg = avgs[i];
+
+          result.totalCost = result.rpi * params.days + result.avg;
+          if (!avgs[i].success || avgs[i].size == 0)
+            result.totalCost += 400;
+
+          // Add the matching score for this result.
+          let diff = 0;
+          if (avgs[i].success && avgs[i].size > 0) {
+            const priceDiff = Math.abs(dailyBudget -
+              (params.budget - avgs[i].avg) / params.days);
+
+            diff = priceDiff;
+          }
+          result.diff = diff;
         });
+
+        results.sort((a, b) => {
+          return a.diff < b.diff;
+        });
+
         return values[0];
       }).then(results => {
         database.bulk({docs:results.resultsArray}, err => {
