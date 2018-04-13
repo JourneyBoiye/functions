@@ -65,7 +65,7 @@ const SUBREGION_AGES = {
   'EASTERN EUROPE': {
     'ranges': [
       {
-        'min': 24
+        'min': 24,
         'max': 35
       },
     ]
@@ -284,12 +284,14 @@ const CITY_AGES = {
         'max': 30
       }
     ]
-  }
+  },
 
   'RIO DE JANEIRO': {
     'ranges': [
-      'min': 24,
-      'max': 32
+      {
+        'min': 24,
+        'max': 32
+      }
     ]
   },
 
