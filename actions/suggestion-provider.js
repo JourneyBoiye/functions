@@ -188,6 +188,7 @@ function main(params) {
             result.totalCost += 400;
 
           // Add the matching score for this result.
+          let dailyBudget = params.budget / params.days;
           let diff = 0;
           if (avgs[i].success && avgs[i].size > 0) {
             const priceDiff = Math.abs(dailyBudget -
