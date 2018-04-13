@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "append-query": "^2.0.1",
     "assert": "^1.4.1",
     "cloudant": "^1.10.0-NOTICE",
     "node-fetch": "^2.0.0",
