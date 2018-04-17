@@ -50,6 +50,7 @@ export function queryCallback(err, data, activities) {
         region: region,
         rpi: body.rpi,
         iata: body.iata,
+        pagebanner: body.pagebanner,
         query: activities
       };
     }
