@@ -30,6 +30,8 @@ export function queryCallback(err, data, activities) {
     // Retrieve up to the first 5 results.
     let results = {
       resultsArray : [],
+      minDiff: -Infinity,
+      maxDiff: Infinity,
     };
     for (var i = 0; i < data['results'].length; i++) {
       let body = data.results[i];
@@ -152,7 +154,7 @@ function main(params) {
         environment_id: params.environment_id,
         collection_id: params.collection_id,
         natural_language_query: params.activities,
-        count: 25,
+        count: 15,
       }, (err, data) => resolve(queryCallback(err, data, params.activities)));
     });
 
@@ -192,6 +194,7 @@ function main(params) {
         results.sort((a, b) => {
           return a.absDiff < b.absDiff;
         });
+        values[0].resultsArray = results;
 
         return values[0];
       }).then(results => {
@@ -200,7 +203,15 @@ function main(params) {
             return reject(null);
           }
 
-          //results.resultsArray = results.resultsArray.slice(0, 5);
+          results.resultsArray = results.resultsArray.slice(0, 5);
+          results.resultsArray.forEach(result => {
+            if (result.signDiff < results.minDiff) {
+              results.minDiff = result.signDiff;
+            }
+            if (result.signDiff > results.maxDiff) {
+              results.maxDiff = result.signDiff;
+            }
+          });
           resolve(results);
         });
       });
