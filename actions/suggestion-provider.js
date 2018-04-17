@@ -193,7 +193,7 @@ function main(params) {
         });
 
         results = results.sort((a, b) => {
-          return a.absDiff < b.absDiff;
+          return a.absDiff - b.absDiff;
         });
         values[0].resultsArray = results;
 
