@@ -47,6 +47,7 @@ export function queryCallback(err, data, activities) {
         text: text,
         country: country,
         region: region,
+        rpi: body.rpi,
         iata: body.iata,
         query: activities
       };
@@ -179,8 +180,9 @@ function main(params) {
           result.avg = avgs[i];
 
           result.totalCost = result.rpi * params.days + result.avg.avg;
-          if (!avgs[i].success || avgs[i].size === 0)
-            result.totalCost += 400;
+          if (!avgs[i].success || avgs[i].size === 0) {
+            result.totalCost += AVG_FLIGHT_COST;
+          }
 
           // Add the matching score for this result.
           result.absDiff = Math.abs(result.totalCost - params.budget);
