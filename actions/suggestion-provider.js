@@ -200,7 +200,7 @@ function main(params) {
             return reject(null);
           }
 
-          results.resultsArray = results.resultsArray.slice(0, 5);
+          //results.resultsArray = results.resultsArray.slice(0, 5);
           resolve(results);
         });
       });
