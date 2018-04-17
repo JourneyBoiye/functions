@@ -11,6 +11,8 @@ const STATE_DEPARTMENT_URL = Object.freeze('https://travel.state.gov/_res/rss/TA
 const FLIGHT_PRICE_FUNCTION_URL = Object.freeze('https://openwhisk.ng.bluemix.net/api/v1/' +
   'web/grioni.2%40osu.edu_dev/flights/flight-price-check.json');
 
+const AVG_FLIGHT_COST = 400;
+
 export function queryCallback(err, data, activities) {
   return new Promise((resolve, reject) => {
     if (err) {
@@ -178,7 +180,7 @@ function main(params) {
 
           result.totalCost = result.rpi * params.days + result.avg.avg;
           if (!avgs[i].success || avgs[i].size == 0)
-            result.totalCost += 400;
+            result.totalCost += AVG_FLIGHT_COST;
 
           // Add the matching score for this result.
           result.absDiff = Math.abs(result.totalCost - params.budget);
