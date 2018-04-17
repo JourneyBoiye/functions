@@ -25,15 +25,9 @@ export function queryCallback(err, data, activities) {
       'abbreviations'      : null
     };
 
-    // Compute the max/min budgets
-    let min_rpi = 200;
-    let max_rpi = 0;
-
     // Retrieve up to the first 5 results.
     let results = {
       resultsArray : [],
-      min_rpi : 200,
-      max_rpi : 0
     };
     for (var i = 0; i < data['results'].length; i++) {
       let body = data.results[i];
@@ -51,7 +45,6 @@ export function queryCallback(err, data, activities) {
         text: text,
         country: country,
         region: region,
-        rpi: body.rpi,
         iata: body.iata,
         query: activities
       };
@@ -188,17 +181,12 @@ function main(params) {
             result.totalCost += 400;
 
           // Add the matching score for this result.
-          let dailyBudget = params.budget / params.days;
-          let diff = 0;
-          if (avgs[i].success && avgs[i].size > 0) {
-            const priceDiff = Math.abs(result.totalCost - params.budget);
-            diff = priceDiff;
-          }
-          result.diff = diff;
+          result.absDiff = Math.abs(result.totalCost - params.budget);
+          result.signDiff = result.totalCost - params.budget;
         });
 
         results.sort((a, b) => {
-          return a.diff < b.diff;
+          return a.absDiff < b.absDiff;
         });
 
         return values[0];
@@ -207,15 +195,8 @@ function main(params) {
           if (err) {
             return reject(null);
           }
+
           results.resultsArray = results.resultsArray.slice(0, 5);
-          results.resultsArray.forEach(result => {
-            if (result.rpi < results.min_rpi) {
-              results.min_rpi = result.rpi;
-            }
-            if (result.rpi > results.max_rpi) {
-              results.max_rpi = result.rpi;
-            }
-          });
           resolve(results);
         });
       });
