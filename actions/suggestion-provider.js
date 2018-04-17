@@ -30,8 +30,8 @@ export function queryCallback(err, data, activities) {
     // Retrieve up to the first 5 results.
     let results = {
       resultsArray : [],
-      minDiff: -Infinity,
-      maxDiff: Infinity,
+      minDiff: Infinity,
+      maxDiff: -Infinity,
     };
     for (var i = 0; i < data['results'].length; i++) {
       let body = data.results[i];
