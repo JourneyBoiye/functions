@@ -192,7 +192,7 @@ function main(params) {
           result.signDiff = result.totalCost - params.budget;
         });
 
-        results.sort((a, b) => {
+        results = results.sort((a, b) => {
           return a.absDiff < b.absDiff;
         });
         values[0].resultsArray = results;
