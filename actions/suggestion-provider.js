@@ -30,8 +30,8 @@ export function queryCallback(err, data, activities) {
     // Retrieve up to the first 5 results.
     let results = {
       resultsArray : [],
-      minDiff: Infinity,
-      maxDiff: -Infinity,
+      min_rpi: Infinity,
+      max_rpi: -Infinity,
     };
     for (var i = 0; i < data['results'].length; i++) {
       let body = data.results[i];
@@ -206,11 +206,11 @@ function main(params) {
 
           results.resultsArray = results.resultsArray.slice(0, 5);
           results.resultsArray.forEach(result => {
-            if (result.signDiff < results.minDiff) {
-              results.minDiff = result.signDiff;
+            if (result.signDiff < results.min_rpi) {
+              results.min_rpi = result.signDiff;
             }
-            if (result.signDiff > results.maxDiff) {
-              results.maxDiff = result.signDiff;
+            if (result.signDiff > results.max_rpi) {
+              results.max_rpi = result.signDiff;
             }
           });
           resolve(results);
