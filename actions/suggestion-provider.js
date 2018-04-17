@@ -191,9 +191,7 @@ function main(params) {
           let dailyBudget = params.budget / params.days;
           let diff = 0;
           if (avgs[i].success && avgs[i].size > 0) {
-            const priceDiff = Math.abs(dailyBudget -
-              (params.budget - avgs[i].avg) / params.days);
-
+            const priceDiff = Math.abs(result.totalCost - params.budget);
             diff = priceDiff;
           }
           result.diff = diff;
