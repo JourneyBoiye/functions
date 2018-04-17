@@ -183,7 +183,7 @@ function main(params) {
           result.level = levels[result.country] ? levels[result.country] : 1;
           result.avg = avgs[i];
 
-          result.totalCost = result.rpi * params.days + result.avg;
+          result.totalCost = result.rpi * params.days + result.avg.avg;
           if (!avgs[i].success || avgs[i].size == 0)
             result.totalCost += 400;
 
