@@ -22,7 +22,7 @@ describe('suggestion-provider', () => {
   it('empty input', done => {
     suggestionProvider.queryCallback(undefined, {results: []}, '')
       .then(data => {
-        done(assert.deepStrictEqual(data, {resultsArray: [], min_rpi: 200, max_rpi: 0}));
+        done(assert.deepStrictEqual(data, {resultsArray: [], min_rpi: Infinity, max_rpi: -Infinity}));
       })
       .catch(done);
   });
@@ -54,8 +54,8 @@ describe('suggestion-provider', () => {
           query: 'Buckeye football.'
         }
       ],
-      min_rpi: 200, // Min/Max RPI not calculated at this point.
-      max_rpi: 0
+      min_rpi: Infinity, // Min/Max RPI not calculated at this point.
+      max_rpi: -Infinity
     };
     suggestionProvider.queryCallback(undefined, resultsInput, 'Buckeye football.')
       .then(data => {
