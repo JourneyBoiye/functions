@@ -13,7 +13,7 @@ const FLIGHT_PRICE_FUNCTION_URL = Object.freeze('https://openwhisk.ng.bluemix.ne
 
 const AVG_FLIGHT_COST = 400;
 
-export function queryCallback(err, data, activities) {
+export function queryCallback(err, params, data, activities) {
   return new Promise((resolve, reject) => {
     if (err) {
       return reject(err);
@@ -51,7 +51,7 @@ export function queryCallback(err, data, activities) {
         region: region,
         rpi: body.rpi,
         iata: body.iata,
-        query: activities
+        query: activities + params.iataFrom + params.budget + params.days
       };
     }
     return resolve(results);
@@ -155,7 +155,7 @@ function main(params) {
         collection_id: params.collection_id,
         natural_language_query: params.activities,
         count: 15,
-      }, (err, data) => resolve(queryCallback(err, data, params.activities)));
+      }, (err, data) => resolve(queryCallback(err, params, data, params.activities)));
     });
 
     let flightPrices = discoveryResults.then(discoveryResults => {
